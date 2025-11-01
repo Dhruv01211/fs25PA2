@@ -124,10 +124,57 @@ int buildEncodingTree(int nextFree) {
 
 // Step 4: Use an STL stack to generate codes
 void generateCodes(int root, string codes[]) {
-    // TODO:
-    // Use stack<pair<int, string>> to simulate DFS traversal.
-    // Left edge adds '0', right edge adds '1'.
-    // Record code when a leaf node is reached.
+    // clear all codes
+    for (int i = 0; i < 26; ++i) {
+        codes[i] = "";
+    }
+
+    // no tree case
+    if (root == -1) return;
+
+    // handle single-character input
+    bool singleLeaf = (leftArr[root] == -1 && rightArr[root] == -1);
+
+    // stack for DFS traversal
+    stack<pair<int, string>> stack;
+    stack.push({root, ""});
+
+    // DFS loop
+    while (!stack.empty()) {
+        pair<int, string> nodeAndPath = stack.top();
+        stack.pop();
+
+        int currentNodeIndex = nodeAndPath.first;
+        const string &path = nodeAndPath.second;
+
+        // check if leaf node
+        bool isLeafNode = (leftArr[currentNodeIndex] == -1 && rightArr[currentNodeIndex] == -1);
+        if (isLeafNode) {
+            // assign code to leaf character
+            if (charArr[currentNodeIndex] >= 'a' && charArr[currentNodeIndex] <= 'z') {
+                string code = path;
+                if (code.empty() && singleLeaf) code = "0";
+
+                int alphabetIndex = charArr[currentNodeIndex] - 'a';
+                codes[alphabetIndex] = code;
+            }
+        }
+        else {
+            // push right child with '1'
+            if (rightArr[currentNodeIndex] != -1) {
+                int rightChildIndex = rightArr[currentNodeIndex];
+                string pathForRightChild = path + "1";
+                stack.push({ rightChildIndex, pathForRightChild});
+            }
+
+            // push left child with '0'
+            if (leftArr[currentNodeIndex]  != -1) {
+                int leftChildIndex = leftArr[currentNodeIndex];
+                string pathForLeftChild = path + "0";
+                stack.push({ leftChildIndex, pathForLeftChild});
+            }
+        }
+    }
 }
 
 // Step 5: Print table and encoded message
